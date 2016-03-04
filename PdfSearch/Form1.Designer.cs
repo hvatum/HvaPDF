@@ -40,7 +40,6 @@
             // 
             // folderBrowserDialog1
             // 
-            this.folderBrowserDialog1.HelpRequest += new System.EventHandler(this.folderBrowserDialog1_HelpRequest);
             // 
             // textBoxPath
             // 

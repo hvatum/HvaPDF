@@ -26,6 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -33,7 +34,8 @@ namespace PdfSearch
 {
     public partial class Form1 : Form
     {
-        private ListBox listBoxResults;
+        private TextMatchListBox listBoxResults;
+        private BackgroundWorker bw;
 
         public Form1()
         {
@@ -42,6 +44,38 @@ namespace PdfSearch
             tabControl1.MouseDown += TabControl1_MouseDown;
             textBoxSearch.FindForm().AcceptButton = button2;
             textBoxPath.Text = System.Environment.GetEnvironmentVariable("USERPROFILE");
+            bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            bw.DoWork += DoSearch;
+            bw.ProgressChanged += Bw_ProgressChanged;
+            bw.RunWorkerCompleted += (sender, e) =>
+            {
+                button2.Text = "Search";
+                button2.Enabled = true;
+            };
+        }
+
+        private void Bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 0)
+            {
+                button2.Enabled = false;
+                button2.Text = "Searching...";
+                listBoxResults = new TextMatchListBox();
+                TabPage tc = new TabPage(textBoxSearch.Text + "    ");
+                tc.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                listBoxResults.Dock = DockStyle.Fill;
+                tc.Controls.Add(listBoxResults);
+                tabControl1.Controls.Add(tc);
+                tabControl1.SelectedIndex = tabControl1.TabCount - 1;
+            }
+            else
+            {
+                List<TextMatchResult> r = (List<TextMatchResult>)e.UserState;
+                listBoxResults.AddResults(r);
+                listBoxResults.Invalidate();
+                Thread.Yield();
+            }
         }
 
         private Rectangle getCloseRect(Rectangle bounds)
@@ -89,24 +123,11 @@ namespace PdfSearch
             }
         }
 
-        private void folderBrowserDialog1_HelpRequest(object sender, EventArgs e)
+        private void DoSearch(object sender, EventArgs e)
         {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            button2.Enabled = false;
-            button2.Text = "Searching...";
-            try
-            {
-                listBoxResults = new ListBox();
-                TabPage tc = new TabPage(textBoxSearch.Text + "    ");
-                tc.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                listBoxResults.Dock = DockStyle.Fill;
-                tc.Controls.Add(listBoxResults);
-                tabControl1.Controls.Add(tc);
-                tabControl1.SelectedIndex = tabControl1.TabCount - 1;
+            
+            
+                bw.ReportProgress(0);
                 string path = textBoxPath.Text;
                 string searchFor = textBoxSearch.Text;
                 if (Directory.Exists(path))
@@ -123,11 +144,14 @@ namespace PdfSearch
                     List<TextMatchResult> r = searchPdf(path, searchFor);
                     AddResult(path, r, searchFor);
                 }
-            }
-            finally
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (!bw.IsBusy)
             {
-                button2.Text = "Search";
-                button2.Enabled = true;
+                bw.RunWorkerAsync();
             }
         }
 
@@ -140,17 +164,12 @@ namespace PdfSearch
         {
             if (r.Count > 0)
             {
-                listBoxResults.Items.AddRange(r.ToArray());
-            }
-            else
-            {
-                listBoxResults.Items.Add(System.IO.Path.GetFileNameWithoutExtension(file) + ": No matches for \"" + match + "\"");
+                bw.ReportProgress(1, r);
             }
         }
 
         private List<TextMatchResult> searchPdf(string file, string searchFor)
         {
-
             searchFor = searchFor.ToUpper();
             List<TextMatchResult> r = new List<TextMatchResult>();
             PdfReader reader = new PdfReader(file);
@@ -171,6 +190,10 @@ namespace PdfSearch
                 }
             }
             reader.Close();
+            if (r.Count == 0)
+            {
+                r.Add(new TextMatchResult(file, searchFor));
+            }
             return r;
         }
     }

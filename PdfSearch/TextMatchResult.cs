@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace PdfSearch
 {
@@ -7,21 +9,50 @@ namespace PdfSearch
         public int page;
         public string surroundingText;
         private string file;
-        private int i;
         private string searchFor;
-        private string v;
+        private bool miss;
 
         public TextMatchResult(string file, int page, string surroundingText, string searchFor)
         {
+            this.miss = false;
             this.file = file;
             this.page = page;
             this.surroundingText = surroundingText;
             this.searchFor = searchFor;
         }
 
+        public TextMatchResult(string file, string searchFor)
+        {
+            this.miss = true;
+            this.file = file;
+            this.searchFor = searchFor;
+        }
+
+        internal void OpenFile()
+        {
+            System.Diagnostics.Process.Start(file);
+        }
+
+        internal bool IsMiss()
+        {
+            return miss;
+        }
+
         public override string ToString()
         {
-            return Path.GetFileNameWithoutExtension(file) + ": Page " + page.ToString() + " - " + surroundingText;
+            if (miss)
+            {
+                return Path.GetFileNameWithoutExtension(file) + ": No hit...";
+            }
+            else
+            {
+                return Path.GetFileNameWithoutExtension(file) + ": Page " + page.ToString() + " - " + surroundingText;
+            }
+        }
+
+        public string GetTooltip()
+        {
+            return file;
         }
     }
 
