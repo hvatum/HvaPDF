@@ -177,7 +177,7 @@ namespace PdfSearch
             int before = 15;
             int after = 120;
 
-            for (int i = 1; i < reader.NumberOfPages; i++)
+            for (int i = 1; i <= reader.NumberOfPages; i++)
             {
                 string text = PdfTextExtractor.GetTextFromPage(reader, i);
                 int pos = text.ToUpper().IndexOf(searchFor);
