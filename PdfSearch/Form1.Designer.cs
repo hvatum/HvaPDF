@@ -38,9 +38,6 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.SuspendLayout();
             // 
-            // folderBrowserDialog1
-            // 
-            // 
             // textBoxPath
             // 
             this.textBoxPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
@@ -56,7 +53,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Choose folder";
+            this.button1.Text = "Select folder";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -122,7 +119,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBoxPath);
             this.Name = "Form1";
-            this.Text = "PdfSearch";
+            this.Text = "HvaPDF";
             this.ResumeLayout(false);
             this.PerformLayout();
 
