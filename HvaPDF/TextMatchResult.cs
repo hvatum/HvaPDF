@@ -46,7 +46,7 @@ namespace PdfSearch
             }
             else
             {
-                return Path.GetFileNameWithoutExtension(file) + ": Page " + page.ToString() + " - " + surroundingText;
+                return Path.GetFileNameWithoutExtension(file) + ": Page " + page.ToString() + " - " + surroundingText.Replace("\r", "").Replace("\n", "");
             }
         }
 

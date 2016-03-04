@@ -1,1 +1,2 @@
-This project uses iTextSharp for PDF handling
+This project uses iTextSharp for PDF handling, released under AGPL
+Icon is released under Public Domain and downloaded from here: http://www.rw-designer.com/icon-detail/13195
